@@ -1,0 +1,62 @@
+1) Most Popular Genres in Terms of Sold Tracks
+
+SELECT
+  Genre.Name AS Genre_Name,
+  SUM(InvoiceLine.UnitPrice * InvoiceLine.Quantity) AS Revenue
+FROM Artist
+JOIN album
+  ON album.ArtistId = Artist.ArtistId
+JOIN Track
+  ON Track.albumID = album.AlbumId
+JOIN InvoiceLine
+  ON InvoiceLine.TrackId = Track.TrackId
+JOIN Genre
+  ON Genre.GenreId = Track.GenreId
+GROUP BY Genre_Name
+ORDER BY Revenue DESC;
+-----------------------------------------------------------------------------------
+
+2)Countries that Bought that Most Tracks
+SELECT
+  Customer.Country AS country,
+  SUM(InvoiceLine.UnitPrice * InvoiceLine.Quantity) AS Tracks_sales
+FROM Track
+JOIN InvoiceLine
+  ON InvoiceLine.TrackId = Track.TrackId
+JOIN Invoice
+  ON Invoice.InvoiceId = InvoiceLine.InvoiceId
+JOIN Customer
+  ON Customer.CustomerId = Invoice.CustomerId
+GROUP BY Country
+ORDER BY Tracks_sales DESC;
+
+-------------------------------------------------------------------------------
+3) Media Type Revenue 
+SELECT
+  MediaType.Name,
+  MediaType.MediaTypeId,
+  SUM(InvoiceLine.UnitPrice * InvoiceLine.Quantity) AS Revenue
+FROM InvoiceLine
+JOIN MediaType
+  ON MediaType.MediaTypeId = Track.MediaTypeId
+JOIN Track
+  ON Track.MediaTypeId = MediaType.MediaTypeId
+GROUP BY MediaType.Name
+-----------------------------------------------------------------------
+4) Yearly Revenue for each Genre
+
+SELECT
+  Genre.Name AS GenreName,
+  strftime('%Y', Invoice.InvoiceDate) AS InvoiceYear,
+  SUM(InvoiceLine.UnitPrice * InvoiceLine.Quantity) AS Revenue
+FROM Invoice
+JOIN InvoiceLine
+  ON Invoice.InvoiceId = InvoiceLine.InvoiceId
+JOIN Track
+  ON InvoiceLine.TrackId = Track.TrackId
+JOIN Genre
+  ON Genre.GenreId = Track.GenreId
+WHERE Genre.Name IN ("Rock", "Latin", "Metal", "Alternative & Punk")
+GROUP BY GenreName,
+         InvoiceYear
+ORDER BY Revenue DESC;
